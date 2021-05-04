@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %} User Profile {% endblock %}
+
+{% block body %}
+
+<div class="card" style="width: 18rem;">
+  <div class="card-body">
+    <h2 class="card-title">{{user.first_name}} {{user.last_name}}</h2>
+    <h6 class="card-subtitle mb-2 text-muted">Email: {{user.email}}</h6>
+    <h3 class ="card-subtitle mb-2">Notes</h3>
+    <ul>
+      {% for note in user.notes %} 
+        <li> 
+          <a href="/notes/{{note.id}}/update">{{note.title}}</a>
+          <form action="/notes/{{note.id}}/delete" method= "post">
+            <button type="submit"> Delete Note</button>
+          </form> 
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="/users/{{user.username}}/notes/add" class="card-link">Add Note</a>
+    <a href="#" class="card-link">Delete User</a>
+  </div>
+</div>
+
+{% endblock %}

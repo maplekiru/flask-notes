@@ -44,7 +44,7 @@ def register_user():
         session["user_id"] = user.username
 
         
-        return redirect('/secret')
+        return redirect(f'/users/{username}')
         
     else:
         return render_template("user_register_form.html",
@@ -63,25 +63,12 @@ def login_user():
         user = User.login(username, password)
         if user:
             session["user_id"] = user.username
-            return redirect('/secret')
+            return redirect(f'/users/{username}')
         else:
             flash("Incorrect username and/or password")
     
     return render_template("user_login_form.html", form=form)
         
-
-@app.route("/secret")
-def enter_secret_chamber():
-    """ checks if user is logged in by checking user_id
-        in session - allows user to see "/secret" route
-        if logged in """
-
-    if "user_id" not in session:
-        flash("User access not allowed - must be logged in")
-        return redirect('/')
-    else: 
-        return "You made it!"
-
 
 @app.route("/logout")
 def logout_user():
@@ -90,4 +77,40 @@ def logout_user():
     session.pop("user_id", None)
     flash("Successfully logged out.")
     return redirect('/')
+
+#USER ROUTES ---------------------------------------------------------
+
+@app.route("/users/<username>")
+def user_profile(username):
+    """ checks if user is logged in by checking user_id
+        in session - allows user to see "/secret" route
+        if logged in """
+
+    if "user_id" not in session:
+        flash("User access not allowed - must be logged in")
+        return redirect('/')
+    else:
+        user = User.query.get(username)
+
+        return render_template('user_profile.html',
+            user=user)
+
+
+@app.route("/users/<username>/delete")
+def delete_user(username):
+    
+    if "user_id" not in session:
+        flash("User access not allowed - must be logged in")
+        return redirect('/')
+    else:
+        user = User.query.get(username)
         
+        for note in user.notes:
+            db.session.delete(note)
+
+        db.session.delete(user)
+        db.session.commit()
+
+        session.pop("user_id", None)
+
+        return redirect('/')
