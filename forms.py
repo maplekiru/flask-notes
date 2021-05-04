@@ -28,4 +28,13 @@ class NewUserForm(FlaskForm):
             Length(max=30)])
 
 
+class LoginForm(FlaskForm):
+    """ Form for logging in user """
+
+    username = StringField("username", 
+        validators=[InputRequired(),
+            Length(max=20)])
+
+    password = PasswordField("password", 
+        validators=[InputRequired()])
 

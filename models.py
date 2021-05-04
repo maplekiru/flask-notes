@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 def connect_db(app):
     """ Connect to database"""
@@ -15,7 +17,7 @@ class User(db.Model):
     username = db.Column(db.String(20),
         primary_key=True)
 
-    password = db.Column(db.String(20),
+    password = db.Column(db.Text,
         nullable=False)
 
     email = db.Column(db.String(50),
@@ -28,3 +30,26 @@ class User(db.Model):
     last_name = db.Column(db.String(30),
         nullable=False)
         
+
+    @classmethod
+    def register(cls, username, password, email, first_name, last_name):
+        """ register user with hashed password and return user """
+
+        hash = bcrypt.generate_password_hash(password).decode('utf8')
+        return cls(username=username, 
+                   password=hash, 
+                   email=email, 
+                   first_name=first_name, 
+                   last_name=last_name)
+
+    @classmethod
+    def login(cls, username, password):
+        """ validate user exists and password is correct
+            return user if valid, return false if not """
+        
+        user = cls.query.filter_by(username=username).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
+        else: 
+            return False

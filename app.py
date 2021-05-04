@@ -6,7 +6,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, User
 from project_secrets import API_SECRET_KEY
-from forms import NewUserForm
+from forms import NewUserForm, LoginForm
 
 app = Flask(__name__)
 
@@ -31,12 +31,63 @@ def register_user():
     form = NewUserForm()
 
     if form.validate_on_submit():
-        # username = 
-        # password = 
-        # email = 
-        # first_name = 
-        # last_name = 
-        return 5
+        username = form.username.data
+        password = form.password.data
+        email = form.email.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+
+        user = User.register(username, password, email, first_name, last_name)
+        
+        db.session.add(user)
+        db.session.commit()
+        session["user_id"] = user.username
+
+        
+        return redirect('/secret')
+        
     else:
         return render_template("user_register_form.html",
             form=form)
+
+@app.route("/login", methods=["GET", "POST"])
+def login_user():
+    """ Shows form that will log in user with authenticated credentials
+        when submitted. Accepts username & password """
+    
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        user = User.login(username, password)
+        if user:
+            session["user_id"] = user.username
+            return redirect('/secret')
+        else:
+            flash("Incorrect username and/or password")
+    
+    return render_template("user_login_form.html", form=form)
+        
+
+@app.route("/secret")
+def enter_secret_chamber():
+    """ checks if user is logged in by checking user_id
+        in session - allows user to see "/secret" route
+        if logged in """
+
+    if "user_id" not in session:
+        flash("User access not allowed - must be logged in")
+        return redirect('/')
+    else: 
+        return "You made it!"
+
+
+@app.route("/logout")
+def logout_user():
+    """ clears user from session and returns to root route """
+
+    session.pop("user_id", None)
+    flash("Successfully logged out.")
+    return redirect('/')
+        
