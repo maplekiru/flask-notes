@@ -1,1 +1,1 @@
-API_SECRET_KEY = "super secret key"
+FLASK_SECRET_KEY = "super secret key"

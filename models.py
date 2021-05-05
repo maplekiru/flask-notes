@@ -72,3 +72,4 @@ class Note(db.Model):
     owner = db.Column(db.String(20),
         db.ForeignKey("users.username"),
         nullable=False)
+    # ^^ owner_username may help be explicitly connected

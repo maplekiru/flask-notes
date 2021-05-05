@@ -11,8 +11,8 @@
     <h3 class ="card-subtitle mb-2">Notes</h3>
     <ul>
       {% for note in user.notes %} 
-        <li> 
-          <a href="/notes/{{note.id}}/update">{{note.title}}</a>
+        <li> {{note.title}}
+          <a class="btn btn-primary" href="/notes/{{note.id}}/update">Edit Note</a>
           <form action="/notes/{{note.id}}/delete" method= "post">
             <button type="submit"> Delete Note</button>
           </form> 
